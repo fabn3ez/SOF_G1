@@ -2,7 +2,7 @@
 // Create database connection directly
 $servername = "localhost";
 $username = "root";
-$password = "qwer4321..E";
+$password = "1234";
 $dbname = "healthconnect";
 
 $conn = new mysqli($servername, $username, $password, $dbname);

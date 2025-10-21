@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-// Create database connection directly in this file for testing
+// Create database connection
 $servername = "localhost";
 $username = "root";
-$password = "qwer4321..E";
+$password = "1234";
 $dbname = "healthconnect";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -31,7 +31,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['role'] = $user['role'];
-            header("Location: dashboard.php");
+            
+            // Redirect based on role
+            if ($user['role'] === 'admin') {
+                header("Location: admin_dashboard.php");
+            } else {
+                header("Location: dashboard.php");
+            }
             exit();
         } else {
             $error = "Invalid password!";
@@ -140,6 +146,15 @@ $conn->close();
             box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
         }
         
+        .admin-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            margin-top: 10px;
+        }
+        
+        .admin-btn:hover {
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
         .links {
             text-align: center;
             margin-top: 20px;
@@ -163,6 +178,27 @@ $conn->close();
             margin-bottom: 20px;
             text-align: center;
             border: 1px solid #fcc;
+        }
+        
+        .demo-accounts {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .demo-accounts h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .demo-account {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #4facfe;
         }
     </style>
 </head>
@@ -191,6 +227,14 @@ $conn->close();
                 
                 <button type="submit" class="btn">Login</button>
             </form>
+
+            <!-- Quick Admin Login Button -->
+            <form method="POST" style="margin-top: 10px;">
+                <input type="hidden" name="email" value="admin@healthconnect.com">
+                <input type="hidden" name="password" value="admin123">
+                <button type="submit" class="btn admin-btn">🚀 Quick Admin Login</button>
+            </form>
+            </div>
             
             <div class="links">
                 <p>Don't have an account? <a href="signup.php">Sign up here</a></p>

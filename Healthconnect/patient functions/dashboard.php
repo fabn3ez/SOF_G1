@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
 // Create database connection
 $servername = "localhost";
 $username = "root";
-$password = "qwer4321..E";
+$password = "1234";
 $dbname = "healthconnect";
 
 $conn = new mysqli($servername, $username, $password, $dbname);

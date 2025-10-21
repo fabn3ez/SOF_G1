@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "1234";
 $dbname = "healthconnect";
 
 // Create connection
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS appointments (
 )");
 
 $conn->query("
-CREATE TABLE IF NOT appointment_reminders (
+CREATE TABLE IF NOT EXISTS appointment_reminders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     appointment_id INT NOT NULL,
     reminder_type ENUM('email', 'sms', 'both') DEFAULT 'email',
