@@ -51,6 +51,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - HealthConnect</title>
+
     <style>
         * {
             margin: 0;
@@ -227,7 +228,7 @@ $conn->close();
         <div class="navbar-brand">HealthConnect</div>
         <div class="navbar-user">
             <span>Welcome, <?php echo htmlspecialchars($user['name']); ?></span>
-            <a href="logout.php" class="logout-btn">Logout</a>
+            <a href="../index.php" class="logout-btn">Logout</a>
         </div>
     </nav>
 

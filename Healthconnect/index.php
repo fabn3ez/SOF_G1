@@ -1,7 +1,5 @@
 <?php
-session_start();
-
-// Create database connection
+// Create database connection directly
 $servername = "localhost";
 $username = "root";
 $password = "1234";
@@ -14,39 +12,48 @@ if ($conn->connect_error) {
 }
 
 $error = "";
+$success = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
-
-    $sql = "SELECT * FROM users WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 1) {
-        $user = $result->fetch_assoc();
-        if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['role'] = $user['role'];
-            
-            // Redirect based on role
-            if ($user['role'] === 'admin') {
-                header("Location: admin_dashboard.php");
-            } else {
-                header("Location: dashboard.php");
-            }
-            exit();
-        } else {
-            $error = "Invalid password!";
-        }
+    $confirm_password = $_POST['confirm_password'];
+    $allowed_roles = ['patient', 'staff', 'admin'];
+    // Validation
+    if ($password !== $confirm_password) {
+        $error = "Passwords do not match!";
     } else {
-        $error = "User not found!";
+        // Check if email already exists
+        $check_sql = "SELECT id FROM users WHERE email = ?";
+        $check_stmt = $conn->prepare($check_sql);
+        $check_stmt->bind_param("s", $email);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        
+        if ($check_result->num_rows > 0) {
+            $error = "Email already registered!";
+        } else {
+            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+            $role = $_POST['role'];
+
+            if (!in_array($role, $allowed_roles)) {
+                $error = "Invalid user role!";
+            } else {
+                $sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ssss", $name, $email, $hashed_password, $role);
+            
+            if ($stmt->execute()) {
+                $success = "Account created successfully! You can now login.";
+            } else {
+                $error = "Error: " . $stmt->error;
+            }
+        }
     }
 }
 $conn->close();
+}
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +61,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - HealthConnect</title>
+    <title>Signup - HealthConnect</title>
     <style>
         * {
             margin: 0;
@@ -78,7 +85,7 @@ $conn->close();
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
         }
         
         .header {
@@ -146,15 +153,6 @@ $conn->close();
             box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
         }
         
-        .admin-btn {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-            margin-top: 10px;
-        }
-        
-        .admin-btn:hover {
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-        }
-        
         .links {
             text-align: center;
             margin-top: 20px;
@@ -180,33 +178,32 @@ $conn->close();
             border: 1px solid #fcc;
         }
         
-        .demo-accounts {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        
-        .demo-accounts h4 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .demo-account {
-            background: white;
+        .success {
+            background: #efe;
+            color: #363;
             padding: 10px;
-            margin: 5px 0;
             border-radius: 5px;
-            border-left: 3px solid #4facfe;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #cfc;
         }
+        /*style for role selection  */
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>HealthConnect</h1>
-            <p>Your Health, Our Priority</p>
+            <h1>Join HealthConnect</h1>
+            <p>Create your account in seconds</p>
         </div>
         
         <div class="form-container">
@@ -214,7 +211,16 @@ $conn->close();
                 <div class="error"><?php echo $error; ?></div>
             <?php endif; ?>
             
+            <?php if (!empty($success)): ?>
+                <div class="success"><?php echo $success; ?></div>
+            <?php endif; ?>
+            
             <form method="POST">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                </div>
+                
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input type="email" id="email" name="email" required placeholder="Enter your email">
@@ -222,22 +228,28 @@ $conn->close();
                 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                    <input type="password" id="password" name="password" required placeholder="Create a password">
                 </div>
                 
-                <button type="submit" class="btn">Login</button>
-            </form>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your password">
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" required>
+                        <option value="">Select your role</option>
+                        <option value="patient">Patient</option>
+                        <option value="staff">Staff</option>
+                        <option value="doctor">Doctor</option>
+                    </select>
+                </div>
 
-            <!-- Quick Admin Login Button -->
-            <form method="POST" style="margin-top: 10px;">
-                <input type="hidden" name="email" value="admin@healthconnect.com">
-                <input type="hidden" name="password" value="admin123">
-                <button type="submit" class="btn admin-btn">🚀 Quick Admin Login</button>
+                <button type="submit" class="btn">Create Account</button>
             </form>
-            </div>
             
             <div class="links">
-                <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
+                <p>Already have an account? <a href="login.php">Login here</a></p>
             </div>
         </div>
     </div>
