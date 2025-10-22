@@ -1,0 +1,28 @@
+healthconnect/
+├── 📄 Core Files
+│   ├── login.php                 # Authentication portal
+│   ├── signup.php               # Patient registration
+│   ├── dashboard.php            # Patient dashboard
+│   ├── book_appointment.php     # Appointment booking
+│   └── my_appointments.php      # Appointment management
+│
+├── 🎨 Styling
+│   ├── admin_styles.css         # Admin interface styling
+│   └── staff_styles.css         # Staff interface styling (Yellow theme)
+│
+├── 👨‍💼 Admin Section (/admin/)
+│   ├── admin_dashboard.php      # Admin overview
+│   ├── admin_users.php          # User management
+│   ├── admin_appointments.php   # Appointment oversight
+│   ├── admin_clinics.php        # Clinic management
+│   └── admin_reports.php        # Analytics & reporting
+│
+├── 🩺 Staff Section (/staff/)
+│   ├── staff_dashboard.php      # Staff overview
+│   ├── staff_appointments.php   # Appointment management
+│   ├── staff_patients.php       # Patient records
+│   └── staff_profile.php        # Staff profiles
+│
+└── 🔧 Setup & Configuration
+    ├── setup_admin.php          # Initial system setup
+    └── setup_staff.php          # Staff system setup
