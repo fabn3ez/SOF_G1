@@ -65,7 +65,7 @@ $conn->close();
         <div class="navbar-brand">HealthConnect Staff</div>
         <div class="navbar-user">
             <span>Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
-            <a href="../patient/login.php" class="logout-btn">Logout</a>
+            <a href="../login.php" class="logout-btn">Logout</a>
         </div>
     </nav>
 

@@ -228,7 +228,7 @@ $conn->close();
         <div class="navbar-brand">HealthConnect</div>
         <div class="navbar-user">
             <span>Welcome, <?php echo htmlspecialchars($user['name']); ?></span>
-            <a href="../index.php" class="logout-btn">Logout</a>
+            <a href="../login.php" class="logout-btn">Logout</a>
         </div>
     </nav>
 
