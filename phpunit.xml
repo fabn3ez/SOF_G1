@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         stopOnFailure="false">
+    <testsuites>
+        <testsuite name="Unit Tests">
+            <directory>./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration Tests">
+            <directory>./tests/Integration</directory>
+        </testsuite>
+        <testsuite name="Feature Tests">
+            <directory>./tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <server name="APP_ENV" value="testing"/>
+        <server name="DB_HOST" value="localhost"/>
+        <server name="DB_NAME" value="healthconnect"/>
+        <server name="DB_USER" value="root"/>
+        <server name="DB_PASS" value="1234"/>
+    </php>
+</phpunit>
