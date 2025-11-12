@@ -1,0 +1,39 @@
+SOF_G1 Project Structure
+========================
+
+.git/
+Documentation.txt
+index.php
+Healthconnect/
+    aboutus.php
+    index.php
+    login.php
+    logout.php
+    signup.php
+    admin/
+        admin_appointments.php
+        admin_clinics.php
+        admin_dashboard.php
+        admin_reports.php
+        admin_styles.css
+        admin_users.php
+        setup.php
+    patient/
+        book_appointment.php
+        dashboard.php
+        db.php
+        my_appointments.php
+        reschedule.php
+    staff/
+        setup_staff.php
+        staff_appointments.php
+        staff_dashboard.php
+        staff_patients.php
+        staff_profile.php
+        staff_styles.css
+        doctor/
+            doctor_appointments.php
+            doctor_dashboard.php
+            doctor_profile.php
+            doctor_styles.css
+            setup_doctor.php
