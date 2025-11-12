@@ -1,67 +1,12 @@
 <?php
-// Create database connection directly
-$servername = "localhost";
-$username = "root";
-$password = "1234";
-$dbname = "healthconnect";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
-}
-
-$error = "";
-$success = "";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    $allowed_roles = ['patient', 'staff', 'admin'];
-    // Validation
-    if ($password !== $confirm_password) {
-        $error = "Passwords do not match!";
-    } else {
-        // Check if email already exists
-        $check_sql = "SELECT id FROM users WHERE email = ?";
-        $check_stmt = $conn->prepare($check_sql);
-        $check_stmt->bind_param("s", $email);
-        $check_stmt->execute();
-        $check_result = $check_stmt->get_result();
-        
-        if ($check_result->num_rows > 0) {
-            $error = "Email already registered!";
-        } else {
-            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-            $role = $_POST['role'];
-
-            if (!in_array($role, $allowed_roles)) {
-                $error = "Invalid user role!";
-            } else {
-                $sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("ssss", $name, $email, $hashed_password, $role);
-            
-            if ($stmt->execute()) {
-                $success = "Account created successfully! You can now login.";
-            } else {
-                $error = "Error: " . $stmt->error;
-            }
-        }
-    }
-}
-$conn->close();
-}
+// index.php - HealthConnect Landing Page
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup - HealthConnect</title>
+    <title>HealthConnect | Riverside Community Health Network</title>
     <style>
         * {
             margin: 0;
@@ -71,187 +16,249 @@ $conn->close();
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            width: 100%;
-            max-width: 450px;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-        
-        .form-container {
-            padding: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+            background: #f8f9fa;
             color: #333;
-            font-weight: 500;
         }
         
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 12px;
+        .navbar {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .navbar-links a {
+            color: white;
+            margin-left: 1.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+        
+        .navbar-links a:hover {
+            opacity: 0.8;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 4rem 1.5rem;
+            background: white;
+            margin: 2rem auto;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            max-width: 1000px;
+        }
+        
+        .hero h1 {
+            color: #4facfe;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            color: #555;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 12px 28px;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
+            text-decoration: none;
             transition: all 0.3s ease;
         }
         
-        .btn:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
         }
         
-        .links {
+        .features {
+            max-width: 1100px;
+            margin: 3rem auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
             text-align: center;
-            margin-top: 20px;
-        }
-        
-        .links a {
-            color: #4facfe;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .links a:hover {
-            text-decoration: underline;
-        }
-        
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-            border: 1px solid #fcc;
-        }
-        
-        .success {
-            background: #efe;
-            color: #363;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-            border: 1px solid #cfc;
-        }
-        /*style for role selection  */
-        .form-group select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
         }
-
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #4facfe;
+            margin-bottom: 1rem;
+        }
+        
+        .how-it-works {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .how-it-works h2 {
+            color: #4facfe;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            text-align: center;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .contact {
+            max-width: 900px;
+            margin: 3rem auto;
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .contact h2 {
+            color: #4facfe;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        input, textarea {
+            padding: 0.8rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        footer {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 3rem;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Join HealthConnect</h1>
-            <p>Create your account in seconds</p>
-        </div>
-        
-        <div class="form-container">
-            <?php if (!empty($error)): ?>
-                <div class="error"><?php echo $error; ?></div>
-            <?php endif; ?>
-            
-            <?php if (!empty($success)): ?>
-                <div class="success"><?php echo $success; ?></div>
-            <?php endif; ?>
-            
-            <form method="POST">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email">
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Create a password">
-                </div>
-                
-                <div class="form-group">
-                    <label for="confirm_password">Confirm Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your password">
-                </div>
-                <div class="form-group">
-                    <label for="role">Role</label>
-                    <select id="role" name="role" required>
-                        <option value="">Select your role</option>
-                        <option value="patient">Patient</option>
-                        <option value="staff">Staff</option>
-                        <option value="doctor">Doctor</option>
-                    </select>
-                </div>
 
-                <button type="submit" class="btn">Create Account</button>
-            </form>
-            
-            <div class="links">
-                <p>Already have an account? <a href="login.php">Login here</a></p>
+    <nav class="navbar">
+        <div class="navbar-brand">HealthConnect</div>
+        <div class="navbar-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#contact">Contact</a>
+            <a href="login.php">Login</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Welcome to HealthConnect</h1>
+        <p>Book appointments faster, reduce waiting times, and keep care efficient and human. HealthConnect connects patients, clinics, and administrators through one seamless system.</p>
+        <a href="signup.php" class="btn-primary">Get Started</a>
+    </section>
+
+    <section id="features" class="features">
+        <div class="feature-card">
+            <div class="feature-icon">🩺</div>
+            <h3>Online Appointments</h3>
+            <p>Patients can easily book, reschedule, or cancel appointments from anywhere.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>SMS Reminders</h3>
+            <p>Automatic notifications reduce missed appointments and waiting lines.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Clinic Dashboards</h3>
+            <p>Doctors and staff can manage schedules, attendance, and reports in real time.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>Secure Records</h3>
+            <p>All data is encrypted and accessible only by authorized healthcare staff.</p>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <h4>1. Patient Registers</h4>
+                <p>Create a secure profile and choose a clinic.</p>
+            </div>
+            <div class="step">
+                <h4>2. Book Appointment</h4>
+                <p>Select your preferred date and time slot easily.</p>
+            </div>
+            <div class="step">
+                <h4>3. Receive SMS Reminder</h4>
+                <p>Get notified before your appointment, no more missed visits!</p>
+            </div>
+            <div class="step">
+                <h4>4. Clinic Manages Flow</h4>
+                <p>Staff update records and generate reports efficiently.</p>
             </div>
         </div>
-    </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <h2>Contact Us</h2>
+        <form action="contact.php" method="post">
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="email" name="email" placeholder="Your Email (optional)">
+            <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+            <button class="btn-primary" type="submit">Send Message</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>&copy; <?php echo date('Y'); ?> HealthConnect |Community Health Network</p>
+    </footer>
+
 </body>
 </html>

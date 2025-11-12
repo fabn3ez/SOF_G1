@@ -23,6 +23,6 @@ healthconnect/
 │   ├── staff_patients.php       # Patient records
 │   └── staff_profile.php        # Staff profiles
 │
-└── 🔧 Setup & Configuration
-    ├── setup_admin.php          # Initial system setup
-    └── setup_staff.php          # Staff system setup
+── 🔧 Setup & Configuration
+│    ├── setup_admin.php          # Initial system setup
+     └── setup_staff.php          # Staff system setup
